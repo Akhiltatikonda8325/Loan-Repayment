@@ -10,19 +10,19 @@ export class App extends Component {
       Amount : " ",
       rateofinterest: "",
       period:"",
+      isLoading: false,
       resultdata:[
         {
-          paymentvalue :"",
-        ppvalue :"",
-        intvalue:"",
-        balanceamount:""
+         
         }
       ]
+      
     };
     this.amountchange = this.amountchange.bind(this);
     this.interestchange = this.interestchange.bind(this);
     this.periodchange = this.periodchange.bind(this);
     this.calculate = this.calculate.bind(this);
+    this.clear = this.clear.bind(this);
   }
   amountchange(event) {
     this.setState({Amount: event.target.value});
@@ -33,8 +33,30 @@ export class App extends Component {
   periodchange(event) {
     this.setState({period: event.target.value});
   }
+  clear(){
+      this.setState({
+        Amount : " ",
+        rateofinterest: "",
+        period:"",
+        isLoading: false,
+        resultdata:[
+          {
+           
+          }
+        ]
+        
+      })
+  }
   calculate(event) {
     event.preventDefault();
+    this.setState({ isLoading: false,
+      resultdata:[
+        {
+         
+        }
+      ]
+      
+    })
     let amount = this.state.Amount;
     let rate = (this.state.rateofinterest) / 1200;
     let noofmonths = this.state.period;
@@ -45,16 +67,20 @@ export class App extends Component {
       let Intvalue = Paymentvalue-PPValue;
       let Balanceamount = (Intvalue/rate)-PPValue;
       let result={
-           paymentvalue : Math.round(Paymentvalue,2),
-           ppvalue :  Math.round(PPValue,2),
-           intvalue :Math.round(Intvalue,2),
-           balanceamount :Math.round(Balanceamount,2)
+           paymentvalue : Math.round( Paymentvalue*100)/100,
+           ppvalue : Math.round(PPValue*100) /100,
+           intvalue :Math.round(Intvalue*100)/100,
+           balanceamount :Math.round(Balanceamount*100)/100
       }          
+      this.setState(prevState => ({
+        resultdata: [...prevState.resultdata, result]
+      }))
      
-      this.state.resultdata.push(result);
+      this.setState({isLoading: true});
 
   }
- console.log(this.state.resultdata);
+  
+
 }
   render() {
     return (
@@ -63,19 +89,20 @@ export class App extends Component {
       <form className="m-3 text-center " onSubmit={this.calculate}>
         <div>
             <label className="pr-5">Amount</label>
-            <input  type="number" value={this.state.Amount} onChange={this.amountchange}></input>
+            <input  type="number" value={this.state.Amount} onChange={this.amountchange} required></input>
         </div>
         <div>
             <label className="pr-5">Interest</label>
-            <input  type="number" value={this.state.rateofinterest} onChange={this.interestchange}></input>
+            <input  type="number" value={this.state.rateofinterest} onChange={this.interestchange} required></input>
         </div>
         <div>
             <label className="p-1">Period(Months)</label>
-            <input  type="number" value={this.state.period} onChange={this.periodchange}></input>
+            <input  type="number" value={this.state.period} onChange={this.periodchange} required></input>
         </div>
         <button type="submit" className="btn btn-success">Calculate</button>
+        <button type="submit" className="btn btn-danger m-3" onClick={this.clear}>Clear</button>
       </form>
-      <Results resultvalue={this.state.resultdata}/>
+      <Results resultvalue={this.state}/>
     </div>
     )
   }
